@@ -1,41 +1,38 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
-require("dotenv").config();
-
-const { OpenAI } = require("openai");
+const path = require("path");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-app.use(bodyParser.json());
 app.use(cors());
+app.use(express.json());
 
-// Setup OpenAI with your key
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// POST route to talk to the bot
-app.post("/chat", async (req, res) => {
+// Simple chatbot endpoint
+app.post("/api/chat", (req, res) => {
   const { message } = req.body;
 
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",  // or "gpt-4" if you have access
-      messages: [{ role: "user", content: message }],
-    });
+  // Example dummy responses
+  let response = "Sorry, I don't understand.";
 
-    res.json({
-      reply: response.choices[0].message.content,
-    });
-  } catch (err) {
-    console.error("OpenAI error:", err.message);
-    res.status(500).send("Something went wrong!");
+  if (message.toLowerCase().includes("math")) {
+    response = "Sure, I can help you with maths!";
+  } else if (message.toLowerCase().includes("physics")) {
+    response = "Physics is fascinating! What do you want to know?";
   }
+
+  res.json({ response });
 });
 
-// Start the server
+// Serve frontend static files in production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/build/index.html"));
+  });
+}
+
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });
