@@ -1,38 +1,33 @@
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
-
+// server.js
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'client')));
 
-// Simple chatbot endpoint
-app.post("/api/chat", (req, res) => {
-  const { message } = req.body;
-
-  // Example dummy responses
-  let response = "Sorry, I don't understand.";
-
-  if (message.toLowerCase().includes("math")) {
-    response = "Sure, I can help you with maths!";
-  } else if (message.toLowerCase().includes("physics")) {
-    response = "Physics is fascinating! What do you want to know?";
-  }
-
-  res.json({ response });
+// Basic GET route to serve index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'index.html'));
 });
 
-// Serve frontend static files in production
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/build")));
+// Mock chatbot logic for testing
+app.post('/api/chat', (req, res) => {
+  const userMessage = req.body.message || '';
+  let response = "I don't understand.";
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/build/index.html"));
-  });
-}
+  if (userMessage.toLowerCase().includes('math')) {
+    response = "Let's solve a math problem together!";
+  } else if (userMessage.toLowerCase().includes('science')) {
+    response = "Science is fascinating! Ask me anything.";
+  }
 
+  res.json({ reply: response });
+});
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });

@@ -1,0 +1,27 @@
+<!-- client/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Education Access Chatbot</title>
+</head>
+<body>
+  <h1>🎓 Education Access Chatbot</h1>
+  <input id="userInput" type="text" placeholder="Ask something..." />
+  <button onclick="sendMessage()">Ask</button>
+  <p><strong>Bot:</strong> <span id="botReply"></span></p>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById('userInput').value;
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input })
+      });
+      const data = await response.json();
+      document.getElementById('botReply').innerText = data.reply;
+    }
+  </script>
+</body>
+</html>
